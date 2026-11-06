@@ -1,0 +1,12 @@
+# Python bytecode cache
+__pycache__/
+*.pyc
+
+# Virtual environments
+.venv/
+venv/
+
+# SQLite databases and runtime journals
+data/opportunity.db
+data/opportunity.db-shm
+data/opportunity.db-wal

@@ -1,0 +1,100 @@
+{% extends "opportunity/base.html" %}{% block title %}Run {{ run.id }}{% endblock %}
+{% block body %}
+<div class="card">
+ <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center">
+  <div><h2 style="margin:0">{{ run.country_name }} · {{ run.period_days }}-day research · {{ run.category }}</h2>
+   <div class="muted">Run #{{ run.id }} started {{ run.created_at }} UTC · Coverage: <b>{{ cov.level }}</b>{% if parent %} · part of region run <a href="{{ url_for('opportunity.run_page', rid=parent.id) }}">#{{ parent.id }} {{ parent.country_name }}</a>{% endif %}</div></div>
+  <div><button id="cancel" class="secondary">Cancel</button> <button id="resume" class="secondary" hidden>Resume</button>
+   <a class="btn" id="xlsx" href="{{ url_for('opportunity.download', rid=run.id, fmt='xlsx') }}">Download Excel</a></div></div>
+ {% if cov.note %}<div class="note warn">{{ cov.note }}</div>{% endif %}
+ {% if not browser_ok %}<div class="note warn"><b>Ubuy product-card check is OFF:</b> the headless browser (Playwright) is not installed in this app's environment. Close the app and start it with <b>run.bat</b> (it installs it automatically), then re-run.</div>{% endif %}
+ {% if is_region and children %}<div class="note">Countries: {% for k in children %}<a class="chip {{ 'good' if k.status=='completed' else 'warn' }}" href="{{ url_for('opportunity.run_page', rid=k.id) }}">{{ k.country_name }} · {{ k.status }} · {{ k.counters.get('qualified',0) }} opp.</a>{% endfor %}</div>{% endif %}
+ <div style="margin:14px 0 6px"><b id="stage">{{ run.stage }}</b> <span class="pill" id="status">{{ run.status }}</span></div>
+ <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100"><i id="bar" style="width:{{ run.progress or 0 }}%"></i></div>
+ <div id="err" class="note warn" hidden></div>
+ <div class="grid g6" style="margin-top:16px">
+  <div class="stat"><b id="c_cand">–</b><span>Candidates found</span></div><div class="stat"><b id="c_q">–</b><span>Opportunities</span></div>
+  <div class="stat"><b id="c_em">–</b><span>Emerging (may trend)</span></div><div class="stat"><b id="c_mg">–</b><span>Local supply gaps</span></div>
+  <div class="stat"><b id="c_ug">–</b><span>Not on Ubuy store</span></div><div class="stat"><b id="c_rq">–</b><span>Web requests used</span></div></div>
+</div>
+<div class="card"><h2>Agent activity</h2><pre class="log" id="log" aria-live="polite"></pre>
+ <details style="margin-top:10px"><summary class="muted">Source health (which public sites answered, were blocked or failed)</summary><div id="health" class="muted"></div></details></div>
+<div class="card" id="resCard" hidden><h2>Results</h2>
+ <div class="tabs" role="tablist"><button role="tab" data-k="qualified" aria-selected="true">Opportunities (<span id="n_qualified">0</span>)</button>
+  <button role="tab" data-k="emerging" aria-selected="false">Emerging / may become trending (<span id="n_emerging">0</span>)</button>
+  <button role="tab" data-k="watchlist" aria-selected="false">Watchlist – confirm manually (<span id="n_watchlist">0</span>)</button>
+  <button role="tab" data-k="rejected" aria-selected="false">Rejected (<span id="n_rejected">0</span>)</button>
+  <a class="btn secondary" id="csv" href="#">Download this tab as CSV</a></div>
+ <div id="list"></div></div>
+<script>
+const RID={{ run.id }},B='{{ url_for("opportunity.index") }}',REGION={{ 'true' if is_region else 'false' }};let after=0,tab='qualified',data={},loaded=false;
+const $=i=>document.getElementById(i);const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const link=(u,t)=>u?'<a href="'+esc(u)+'" target="_blank" rel="noopener">'+esc(t||u)+'</a>':'';
+const cls=t=>/LIKELY_GAP/.test(t)?'warn':/AVAILABLE|PERMITTED|NO RESTRICTION|FULL_GAP|NOT_FOUND|OTHER_COUNTRY|High|qualified/.test(t)?'good':/PROHIBITED|NO_GAP|rejected|Low|RESTRICTED/.test(t)?'bad':'warn';
+const EMPTY={qualified:'No product met every rule in this run. Nothing was invented to fill the list — see Emerging and Watchlist, and the Source health log above if sources were blocked.',
+ emerging:'No early-trend products with an open local gap in this run.',watchlist:'Nothing needs manual review.',rejected:'Nothing rejected.'};
+async function poll(){const r=await fetch(B+'api/run/'+RID+'?after='+after);const d=await r.json();
+ $('stage').textContent=d.stage;$('status').textContent=d.status;$('bar').style.width=d.progress+'%';
+ const c=d.counters||{};$('c_cand').textContent=c.candidates??'–';$('c_q').textContent=c.qualified??'–';$('c_em').textContent=c.emerging??'–';$('c_mg').textContent=c.marketplace_gaps??'–';$('c_ug').textContent=c.ubuy_gaps??'–';$('c_rq').textContent=c.requests_used??'–';
+ d.logs.forEach(l=>{after=l.id;$('log').textContent+=l.ts.slice(11)+'  ['+l.agent+'] '+l.message+'\n'});$('log').scrollTop=1e9;
+ $('health').innerHTML=Object.entries(d.health||{}).map(([h,v])=>esc(h)+': ok '+v.ok+', blocked '+v.blocked+', errors '+v.error+', robots-disallowed '+v.robots+', cached '+v.cached).join('<br>')||'No requests yet.';
+ if(d.error){$('err').hidden=false;$('err').textContent='Run failed: '+d.error}
+ const run=['running','queued'].includes(d.status);$('cancel').hidden=!run;$('resume').hidden=!['cancelled','interrupted','failed'].includes(d.status);
+ if(d.status==='completed'&&!loaded){loaded=true;await showResults()} if(run||!loaded&&d.status==='completed')setTimeout(poll,2500)}
+async function showResults(){data=await (await fetch(B+'api/run/'+RID+'/results')).json();$('resCard').hidden=false;
+ for(const k of ['qualified','emerging','watchlist','rejected'])$('n_'+k).textContent=(data[k]||[]).length;render()}
+function card(p){const s=p.scores||{},mk=p.marketplace||{},ub=p.ubuy||{},lg=p.compliance||{},h=p.history||{},fc=p.forecast||{},sp=p.sourcing||{},ec=p.economics||{},d=p.demand||{},cp=p.campaign||{},lw=mk.local_web||{};
+  const mkrows=(mk.results||[]).map(r=>'<li>'+esc(r.marketplace)+(r.kind==='classifieds'?' <span class="muted">(classifieds)</span>':'')+': <b>'+esc(r.status)+'</b>'+(r.price?' ('+esc(r.price)+')':'')+(r.method?' <span class="muted">['+esc(r.method)+']</span>':'')+' <span class="muted">'+esc(r.reason)+'</span> '+link(r.url,'open')+'</li>').join('');
+  const sellers=(lw.sellers||[]).map(x=>'<li>'+esc(x.domain)+(x.price?' ('+esc(x.price)+')':'')+' '+link(x.url,'open')+'</li>').join('');
+  const sup=(sp.suppliers||[]).map(x=>'<li>'+esc(x.supplier)+' — '+esc(x.kind)+'; '+esc(x.country)+'; price '+esc(x.price||'n/a')+' '+link(x.url,'open')+'</li>').join('')||'<li>'+esc(sp.reason||'Verify manually')+' '+link(sp.source_search_url,'search Amazon US')+'</li>';
+  const ev=(h.evidence||[]).map(e=>'<li>'+esc(e.date)+' '+esc(e.title)+' '+link(e.url,'open')+'</li>').join('');
+  const ph=(h.search_phrases||[]).slice(0,14).map(x=>'<code class="kw" title="'+esc(x.intent)+'">'+esc(x.phrase)+'</code>').join('')||'<span class="muted">No local search suggestions observed.</span>';
+  const sigs=[...new Set((p.signals||[]).map(x=>x.kind+(x.intent?':'+x.intent:'')))].join(', ');
+  const rules=(lg.rules||[]).map(r=>'<li>'+esc(r.regime)+' ('+esc(r.authority)+'): <b>'+esc(r.status)+'</b></li>').join('');
+  const comp=Object.entries(d.components||{}).filter(([k,v])=>v).map(([k,v])=>esc(k.replace(/_/g,' '))+' '+v).join(' · ');
+  const reg=(p.region_breakdown||[]).map(b=>'<a class="chip '+(b.bucket==='qualified'?'good':b.bucket==='emerging'?'warn':'')+'" href="'+B+'run/'+b.child_run+'">'+esc(b.country)+': '+esc(b.bucket)+' ('+esc(b.score)+')</a>').join('');
+  const camp=cp.sku?('<h3>Suggested SKU &amp; campaign</h3><p><b>'+esc(cp.sku.title)+'</b> · '+esc(cp.sku.category)+' · source: '+link(cp.sku.source_listing||cp.sku.source_search,cp.sku.source_listing?'listing':'search Amazon US')+
+   (cp.landing_page?' · landing: '+link(cp.landing_page,'Ubuy search'):'')+'<br><span class="muted">'+esc(cp.keyword_source)+'</span></p><p>'+(cp.keywords_exact||[]).concat(cp.keywords_phrase||[]).map(k=>'<code class="kw">'+esc(k)+'</code>').join('')+
+   '</p><p class="muted">Headlines: '+esc((cp.headlines||[]).join(' | '))+'<br>Descriptions: '+esc((cp.descriptions||[]).join(' | '))+'<br>Negatives: '+esc((cp.negative_keywords||[]).join(', '))+'<br>Channels: '+esc((cp.channels||[]).join('; '))+'</p>'):'';
+  return '<details class="prod"><summary><b>'+(p.rank||'–')+'</b><span><b>'+esc(p.name)+'</b><br><span class="muted">'+esc(p.category)+'</span>'+yoyPill(p)+'<span class="muted">'+(REGION&&p.region_countries_qualified!=null?' · opportunity in '+p.region_countries_qualified+' countr'+(p.region_countries_qualified==1?'y':'ies'):'')+'</span></span>'+
+   '<span>Score <b>'+(s.total??'–')+'</b><br><span class="pill '+cls(s.confidence_label||'')+'">Confidence '+esc(s.confidence_label||'n/a')+'</span></span>'+
+   '<span>Demand <b>'+esc(d.score??'–')+'</b><br><span class="muted">'+esc(d.local_search_matches||0)+' local searches</span></span>'+
+   '<span class="pill '+cls(mk.gap||'')+'">Local: '+esc(mk.gap||'n/a')+'</span><span class="pill '+cls(ub.gap||'')+'">Ubuy: '+esc(ub.status||'n/a')+'</span>'+
+   '<span class="pill '+cls(lg.status||'')+'">Import: '+esc(lg.status||'n/a')+'</span></summary><div class="detail">'+
+   '<div>'+(reg?'<h3>Countries</h3><p>'+reg+'</p>':'')+'<h3>Recommended action</h3><p>'+esc(p.action||'')+'</p>'+
+   '<h3>Local demand (measured)</h3><p>Score '+esc(d.score)+' — '+comp+'<br><span class="muted">Signals: '+esc(sigs)+'</span></p><p>'+ph+'</p>'+
+   '<h3>History &amp; forecast</h3><p>'+esc(h.trend_class||'n/a')+' · '+esc(h.mentions||0)+' dated local mentions in '+esc(h.period_days||'?')+' days · buckets '+esc(JSON.stringify(h.counts||[]))+'<br>Forecast: '+esc(fc.direction||'n/a')+' ('+esc(fc.confidence_label||'n/a')+')</p><ul>'+ev+'</ul>'+
+   camp+'</div>'+
+   '<div><h3>Local supply ('+esc(mk.verified||0)+'/'+esc(mk.checked||0)+' sources verified)</h3><p>'+esc(mk.reason||'')+'</p><ul>'+mkrows+'</ul>'+
+   (lw.status==='CHECKED'?'<p class="muted">Local web shops on .'+esc(lw.tld||'')+': '+(lw.sellers||[]).length+' (via '+esc(lw.provider)+')</p><ul>'+sellers+'</ul>':(lw.status==='UNVERIFIED'?'<p class="muted">Local web shop check (.'+esc(lw.tld||'')+'): search engines did not answer</p>':''))+
+   (mk.search_supply&&mk.search_supply.checked?'<p class="muted">Local search signals: '+(Object.keys(mk.search_supply.listed_on||{}).length?'searched with '+esc(Object.keys(mk.search_supply.listed_on).join(', ')):'no local store mentioned')+((mk.search_supply.unmet||[]).length?' · unmet: '+esc(mk.search_supply.unmet.slice(0,2).join(' | ')):'')+'</p>':'')+
+   (mk.gap_confidence?'<p class="muted">Gap confidence: '+esc(mk.gap_confidence)+'</p>':'')+(mk.verify_link?'<p>'+link(mk.verify_link,'Spot-check local availability on Google')+'</p>':'')+
+   '<h3>Ubuy</h3><p><b>'+esc(ub.status||'not checked')+'</b>'+(ub.price?' · '+esc(ub.price):'')+' — '+esc(ub.reason||'')+' '+link(ub.url,'open product on Ubuy')+(ub.search_url?' '+link(ub.search_url,'Ubuy search'):'')+(ub.storefront?' <span class="muted">('+esc(ub.storefront)+')</span>':'')+'</p>'+
+   '<h3>Import screening</h3><p><b>'+esc(lg.status||'not checked')+'</b> · HS hint: '+esc(lg.hs_hint||'n/a')+'<br><span class="muted">'+esc(lg.reason||'')+' '+esc(lg.duty_info||'')+'</span></p><ul>'+rules+'</ul>'+
+   '<h3>Sourcing route</h3><ul>'+sup+'</ul><h3>Economics</h3><p>'+esc(ec.status||'n/a')+' · Selling reference: '+esc((ec.selling_price||{}).raw||'not established')+(ec.missing&&ec.missing.length?'<br><span class="muted">Missing: '+esc(ec.missing.slice(0,4).join('; '))+'</span>':'')+'</p>'+
+   (p.reasons&&p.reasons.length?'<h3>Why it is in this list</h3><ul>'+p.reasons.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>':'')+
+   '<h3>Verification dates</h3><p class="muted">market '+esc(mk.checked_at||'-')+' · ubuy '+esc(ub.checked_at||'-')+' · import '+esc(lg.checked_at||'-')+' · source '+esc(sp.checked_at||'-')+'</p></div>'+
+   growthBlock(p)+promoBlock(p)+refsBlock(p)+'</div></details>'}
+function promoBlock(p){const pr=p.promotion;if(!pr)return '';
+ return '<div style="grid-column:1/-1"><h3>How to promote this product</h3><p><span class="pill '+(pr.priority==='High'?'good':'warn')+'">Priority: '+esc(pr.priority)+'</span> <b>'+esc(pr.message)+'</b></p>'+
+  ((pr.angles||[]).length?'<p class="muted">Why it will sell: '+pr.angles.map(a=>esc(a[0])+(a[1]?' ('+esc(a[1]).slice(0,120)+')':'')).join(' · ')+'</p>':'')+
+  '<p><b>When:</b> '+esc(pr.timing)+'</p><ol>'+(pr.channels||[]).map(c=>'<li><b>'+esc(c.channel)+'</b> <span class="muted">— '+esc(c.why)+'</span><ul>'+c.do.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>'+(c.tip?'<span class="muted">'+esc(c.tip)+'</span>':'')+'</li>').join('')+'</ol>'+
+  (pr.price_note?'<p>'+esc(pr.price_note)+'</p>':'')+'<p class="muted"><b>Test plan:</b> '+esc((pr.test_plan||[]).join(' → '))+'<br><b>Measure:</b> '+esc((pr.kpis||[]).join(' · '))+'</p>'+
+  (pr.landing_page?'<p>'+link(pr.landing_page,'Landing page on Ubuy')+'</p>':'')+'</div>'}
+function yoyPill(p){const g=p.growth||{};if(g.yoy_pct==null)return '';const up=g.yoy_pct>0;
+ return ' <span class="pill '+(up?'good':'bad')+'" title="'+esc(g.headline)+'">'+(up?'▲ ':'▼ ')+esc((g.headline||'').split(' · ')[0])+' '+esc(g.source==='Google Trends search interest'?'Google Trends':'News')+'</span>'}
+function growthBlock(p){const g=p.growth;if(!g)return '';const t=g.google_trends||{},n=g.news||{};
+ const spark=(t.series_tail||[]).length?'<svg width="240" height="40" viewBox="0 0 240 40" role="img" aria-label="Google Trends last 60 weeks"><polyline fill="none" stroke="currentColor" stroke-width="1.5" points="'+
+   t.series_tail.map((v,i,a)=>(i*240/(a.length-1)).toFixed(1)+','+(38-36*v/Math.max(1,...a)).toFixed(1)).join(' ')+'"/></svg>':'';
+ return '<div style="grid-column:1/-1"><h3>Year-over-year growth ('+esc(g.keyword)+')</h3><p><b>'+esc(g.headline)+'</b></p><ul>'+
+  '<li>Google Trends ('+esc(t.geo||'')+', last '+esc(t.weeks||'')+' weeks vs same weeks last year): <b>'+esc(t.label||'n/a')+'</b>'+(t.status==='ok'?' — avg interest '+esc(t.this_period_avg)+' vs '+esc(t.last_year_avg)+'; peak '+esc((t.peak||{}).week||''):' — '+esc(t.status||''))+' '+link(t.url,'open Google Trends')+'<br>'+spark+'</li>'+
+  '<li>Google News mentions (last '+esc(n.days||'')+' days vs same period last year): <b>'+esc(n.label||'n/a')+'</b> — '+esc(n.this_period??'?')+' vs '+esc(n.last_year??'?')+' '+link(n.url,'this year')+' · '+link(n.url_last_year,'last year')+'</li></ul></div>'}
+function refsBlock(p){const r=p.references||[];if(!r.length)return '';
+ return '<div style="grid-column:1/-1"><h3>References (where this data comes from)</h3><ol>'+r.map(x=>'<li><b>'+esc(x.type)+':</b> '+(x.url?link(x.url,x.title):esc(x.title))+(x.note?' <span class="muted">— '+esc(x.note)+'</span>':'')+'</li>').join('')+'</ol></div>'}
+function render(){const rows=data[tab]||[];$('csv').href=B+'run/'+RID+'/download/csv?kind='+tab;
+ $('list').innerHTML=rows.length?rows.map(card).join(''):'<p class="muted">'+EMPTY[tab]+'</p>'}
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tabs button').forEach(x=>x.setAttribute('aria-selected','false'));b.setAttribute('aria-selected','true');tab=b.dataset.k;render()});
+$('cancel').onclick=async()=>{await fetch(B+'run/'+RID+'/cancel',{method:'POST'})};
+$('resume').onclick=async()=>{await fetch(B+'run/'+RID+'/resume',{method:'POST'});loaded=false;setTimeout(poll,800)};
+poll();
+</script>{% endblock %}

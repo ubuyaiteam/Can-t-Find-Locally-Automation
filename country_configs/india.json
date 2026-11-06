@@ -1,0 +1,499 @@
+{
+ "code": "IN",
+ "name": "India",
+ "currency": "INR",
+ "news_market": "en-IN",
+ "trends_geo": "IN",
+ "_note": "Search-URL patterns and rules are best-effort and MUST be verified/adjusted by you. Sources that fail are reported as Unverified, never as absence.",
+ "ubuy_domain": "www.ubuy.co.in",
+ "ubuy_search_url": "https://www.ubuy.co.in/search/?q={q}",
+ "ubuy_reference_domains": [
+  "www.ubuy.ae",
+  "www.ubuy.com.kw"
+ ],
+ "marketplaces": [
+  {
+   "name": "Amazon India",
+   "domain": "amazon.in",
+   "search_url": "https://www.amazon.in/s?k={q}"
+  },
+  {
+   "name": "Flipkart",
+   "domain": "flipkart.com",
+   "search_url": "https://www.flipkart.com/search?q={q}"
+  },
+  {
+   "name": "Myntra",
+   "domain": "myntra.com",
+   "search_url": "https://www.myntra.com/{q_hyphen}",
+   "render": true
+  },
+  {
+   "name": "Meesho",
+   "domain": "meesho.com",
+   "search_url": "https://www.meesho.com/search?q={q}",
+   "render": true
+  },
+  {
+   "name": "AJIO",
+   "domain": "ajio.com",
+   "search_url": "https://www.ajio.com/search/?text={q}",
+   "render": true
+  },
+  {
+   "name": "JioMart",
+   "domain": "jiomart.com",
+   "search_url": "https://www.jiomart.com/search/{q}",
+   "render": true
+  },
+  {
+   "name": "Nykaa",
+   "domain": "nykaa.com",
+   "search_url": "https://www.nykaa.com/search/result/?q={q}",
+   "render": true
+  },
+  {
+   "name": "Croma",
+   "domain": "croma.com",
+   "search_url": "https://www.croma.com/searchB?q={q}%3Arelevance&text={q}",
+   "render": true
+  },
+  {
+   "name": "Reliance Digital",
+   "domain": "reliancedigital.in",
+   "search_url": "https://www.reliancedigital.in/search?q={q}",
+   "render": true
+  },
+  {
+   "name": "Tata CLiQ",
+   "domain": "tatacliq.com",
+   "search_url": "https://www.tatacliq.com/search/?searchCategory=all&text={q}",
+   "render": true
+  }
+ ],
+ "category_marketplaces": [
+  {
+   "name": "Snapdeal",
+   "domain": "snapdeal.com",
+   "search_url": "https://www.snapdeal.com/search?keyword={q}",
+   "categories": [
+    "Electronics",
+    "Mobile Accessories",
+    "Fashion",
+    "Fashion Accessories",
+    "Home Improvement",
+    "Kitchen Appliances & Accessories",
+    "Toys"
+   ]
+  },
+  {
+   "name": "Vijay Sales",
+   "domain": "vijaysales.com",
+   "search_url": "https://www.vijaysales.com/search/{q}",
+   "categories": [
+    "Electronics",
+    "Computers & Accessories",
+    "Smart Home",
+    "Kitchen Appliances & Accessories",
+    "Personal Care"
+   ]
+  },
+  {
+   "name": "Decathlon India",
+   "domain": "decathlon.in",
+   "search_url": "https://www.decathlon.in/search?Ntt={q}",
+   "categories": [
+    "Sports",
+    "Fitness",
+    "Outdoor Products"
+   ],
+   "render": true
+  },
+  {
+   "name": "FirstCry",
+   "domain": "firstcry.com",
+   "search_url": "https://www.firstcry.com/search?q={q}",
+   "categories": [
+    "Toys",
+    "Specialized Consumer Products"
+   ],
+   "render": true
+  },
+  {
+   "name": "Pepperfry",
+   "domain": "pepperfry.com",
+   "search_url": "https://www.pepperfry.com/site_product/search?q={q}",
+   "categories": [
+    "Lifestyle Products",
+    "Office Products",
+    "Home Improvement"
+   ],
+   "render": true
+  }
+ ],
+ "bestseller_pages": [
+  {
+   "name": "Amazon India Best Sellers - Electronics",
+   "url": "https://www.amazon.in/gp/bestsellers/electronics",
+   "category": "Electronics"
+  },
+  {
+   "name": "Amazon India Best Sellers - Kitchen",
+   "url": "https://www.amazon.in/gp/bestsellers/kitchen",
+   "category": "Kitchen Appliances & Accessories"
+  },
+  {
+   "name": "Amazon US Movers & Shakers (international signal)",
+   "url": "https://www.amazon.com/gp/movers-and-shakers",
+   "scope": "international"
+  }
+ ],
+ "official_domains": [
+  "dgft.gov.in",
+  "cbic.gov.in",
+  "bis.gov.in",
+  "cdsco.gov.in",
+  "fssai.gov.in",
+  "dot.gov.in",
+  "saralsanchar.gov.in",
+  "cpcb.nic.in",
+  "indiantradeportal.in",
+  "customs.gov.in"
+ ],
+ "official_sources": [
+  {
+   "name": "DGFT",
+   "url": "https://www.dgft.gov.in"
+  },
+  {
+   "name": "CBIC / Indian Customs",
+   "url": "https://www.cbic.gov.in"
+  },
+  {
+   "name": "BIS",
+   "url": "https://www.bis.gov.in"
+  },
+  {
+   "name": "CDSCO",
+   "url": "https://cdsco.gov.in"
+  },
+  {
+   "name": "FSSAI",
+   "url": "https://www.fssai.gov.in"
+  },
+  {
+   "name": "DoT",
+   "url": "https://dot.gov.in"
+  },
+  {
+   "name": "WPC (Saral Sanchar)",
+   "url": "https://saralsanchar.gov.in"
+  },
+  {
+   "name": "CPCB",
+   "url": "https://cpcb.nic.in"
+  },
+  {
+   "name": "Indian Trade Portal (ITC-HS)",
+   "url": "https://www.indiantradeportal.in"
+  }
+ ],
+ "seasonal_hints": [
+  {
+   "months": [
+    9,
+    10,
+    11
+   ],
+   "label": "Festive / Diwali shopping season (Sep-Nov)"
+  },
+  {
+   "months": [
+    3,
+    4,
+    5,
+    6
+   ],
+   "label": "Summer season (Mar-Jun): cooling, travel, outdoor demand",
+   "categories": [
+    "Home Improvement",
+    "Kitchen Appliances & Accessories",
+    "Travel Accessories",
+    "Outdoor Products",
+    "Sports"
+   ]
+  },
+  {
+   "months": [
+    12,
+    1
+   ],
+   "label": "Winter / wedding / New-Year gifting period",
+   "categories": [
+    "Gifting",
+    "Fashion",
+    "Lifestyle Products"
+   ]
+  },
+  {
+   "months": [
+    6,
+    7,
+    8
+   ],
+   "label": "Monsoon season: indoor and protective products",
+   "categories": [
+    "Home Improvement",
+    "Smart Home",
+    "Automotive"
+   ]
+  }
+ ],
+ "economics": {
+  "_help": "All null by default => the engine will say 'Supplier quotation required' instead of inventing numbers. Fill these in with real values to enable landed-cost / profit maths.",
+  "fx_rates": {
+   "USD_INR": null
+  },
+  "shipping_per_item": null,
+  "duty_rate_pct": null,
+  "tax_rate_pct": null,
+  "other_import_per_item": null,
+  "selling_expense_pct": null,
+  "fulfilment_per_item": null,
+  "target_margin_pct": null
+ },
+ "regulatory_rules": [
+  {
+   "id": "in-ecig",
+   "pattern": "\\b(vape|vaping|e-?cigarette|heated tobacco|hookah pen|e-?hookah)\\b",
+   "status": "PROHIBITED",
+   "regime": "Prohibition of Electronic Cigarettes Act, 2019",
+   "authority": "MoHFW / DGFT / Customs",
+   "note": "Import and sale of electronic cigarettes and similar devices is prohibited in India (verify current text).",
+   "hs_hint": "8543",
+   "source_urls": [
+    "https://www.dgft.gov.in",
+    "https://www.cbic.gov.in"
+   ]
+  },
+  {
+   "id": "in-cannabis",
+   "pattern": "\\b(cbd|cannabis|hemp oil|marijuana|kratom)\\b",
+   "status": "PROHIBITED",
+   "regime": "NDPS Act, 1985",
+   "authority": "Narcotics Control / Customs",
+   "note": "Cannabis-derived and narcotic substances are controlled; treat as prohibited pending expert review.",
+   "hs_hint": null,
+   "source_urls": [
+    "https://www.cbic.gov.in"
+   ]
+  },
+  {
+   "id": "in-jammer",
+   "pattern": "\\b(signal jammer|gps jammer|radar detector|spy camera|hidden camera|stun gun|pepper spray|taser)\\b",
+   "status": "PROHIBITED",
+   "regime": "Telegraph / Arms / security regulations",
+   "authority": "DoT / MHA / Customs",
+   "note": "Jammers, covert surveillance devices and self-defence weapons are prohibited or licence-controlled.",
+   "hs_hint": null,
+   "source_urls": [
+    "https://dot.gov.in",
+    "https://www.dgft.gov.in"
+   ]
+  },
+  {
+   "id": "in-arms",
+   "pattern": "\\b(airsoft|air gun|crossbow|sword|machete|ammunition|knife set|hunting knife|night vision|thermal scope)\\b",
+   "status": "RESTRICTED",
+   "regime": "Arms Act / DGFT restricted items",
+   "authority": "MHA / DGFT",
+   "note": "Weapons-type or defence-sensitive items need licences; kitchen knife sets may still need a customs ruling.",
+   "hs_hint": null,
+   "source_urls": [
+    "https://www.dgft.gov.in"
+   ]
+  },
+  {
+   "id": "in-drone",
+   "pattern": "\\b(drone|quadcopter|fpv)\\b",
+   "status": "RESTRICTED",
+   "regime": "Drone import policy + DGCA Drone Rules",
+   "authority": "DGFT / DGCA / WPC",
+   "note": "Import of drones is restricted and needs authorisation (verify current DGFT notification).",
+   "hs_hint": "8806",
+   "source_urls": [
+    "https://www.dgft.gov.in"
+   ]
+  },
+  {
+   "id": "in-it-hw",
+   "pattern": "\\b(laptop|tablet|notebook computer|all-in-one pc|ultra small form factor)\\b",
+   "status": "RESTRICTED",
+   "regime": "IT hardware Import Management System",
+   "authority": "DGFT",
+   "note": "Laptops/tablets/PCs have an import authorisation regime; check the current DGFT notification.",
+   "hs_hint": "8471",
+   "source_urls": [
+    "https://www.dgft.gov.in"
+   ]
+  },
+  {
+   "id": "in-used",
+   "pattern": "\\b(refurbished|second hand|used|pre-owned)\\b",
+   "status": "RESTRICTED",
+   "regime": "Import of second-hand goods",
+   "authority": "DGFT",
+   "note": "Second-hand goods are generally restricted.",
+   "hs_hint": null,
+   "source_urls": [
+    "https://www.dgft.gov.in"
+   ]
+  },
+  {
+   "id": "in-wireless",
+   "pattern": "\\b(bluetooth|wireless|wifi|wi-fi|walkie|router|smart speaker|earbuds|earphones|headphones|headset|smartwatch|smart watch|fitness (band|tracker)|gps tracker|video doorbell|smart camera|smart plug|smart bulb|smart lock|action camera|dash cam|webcam)\\b",
+   "status": "CONDITIONAL",
+   "regime": "Wireless equipment approval (ETA) / MTCTE",
+   "authority": "WPC / DoT",
+   "note": "Radio-emitting devices typically need ETA (WPC) and may need MTCTE certification.",
+   "hs_hint": "8517 / 8518",
+   "source_urls": [
+    "https://saralsanchar.gov.in",
+    "https://dot.gov.in"
+   ]
+  },
+  {
+   "id": "in-bis-elec",
+   "pattern": "\\b(power bank|charger|adapter|adaptor|battery|led (light|lamp|strip|bulb)|smart (bulb|plug|switch)|earbuds|earphones|headphones|headset|smartwatch|smart watch|speaker|soundbar|webcam|monitor|projector|air fryer|kettle|blender|juicer|mixer|rice cooker|food processor|induction|hair dryer|hair straightener|hair curler|trimmer|shaver|toothbrush|massager|massage gun|air purifier|humidifier|fan|heater|iron|vacuum|treadmill|ice maker|waffle maker|popcorn maker|sous vide|espresso|coffee maker|desk lamp|keyboard|mouse|usb hub|ssd)\\b",
+   "status": "CONDITIONAL",
+   "regime": "BIS compulsory registration / Quality Control Orders (CRS, IS standards)",
+   "authority": "BIS",
+   "note": "Many electronics/appliances need BIS registration before import; confirm whether this exact product is in scope.",
+   "hs_hint": "85xx",
+   "source_urls": [
+    "https://www.bis.gov.in"
+   ]
+  },
+  {
+   "id": "in-epr",
+   "pattern": "\\b(battery|power bank|charger|laptop|smartwatch|smart watch|earbuds|speaker|monitor|projector|appliance|air fryer|kettle|blender)\\b",
+   "status": "CONDITIONAL",
+   "regime": "E-Waste (Management) Rules - EPR registration",
+   "authority": "CPCB",
+   "note": "Importers of covered electronics need EPR registration.",
+   "hs_hint": null,
+   "source_urls": [
+    "https://cpcb.nic.in"
+   ]
+  },
+  {
+   "id": "in-cosmetic",
+   "pattern": "\\b(serum|sunscreen|face mask|lip balm|foundation|mascara|perfume|moisturi[sz]er|shampoo|makeup|cosmetic|skincare|hair dye)\\b",
+   "status": "CONDITIONAL",
+   "regime": "Cosmetics import registration (Cosmetics Rules, 2020)",
+   "authority": "CDSCO",
+   "note": "Imported cosmetics need CDSCO import registration/licence.",
+   "hs_hint": "33xx",
+   "source_urls": [
+    "https://cdsco.gov.in"
+   ]
+  },
+  {
+   "id": "in-meddev",
+   "pattern": "\\b(blood pressure|glucometer|thermometer|oximeter|hearing aid|nebuli[sz]er|tens|water flosser|epilator|blood glucose)\\b",
+   "status": "CONDITIONAL",
+   "regime": "Medical Devices Rules, 2017",
+   "authority": "CDSCO",
+   "note": "Medical / health-monitoring devices may need CDSCO registration and import licence.",
+   "hs_hint": "90xx",
+   "source_urls": [
+    "https://cdsco.gov.in"
+   ]
+  },
+  {
+   "id": "in-food",
+   "pattern": "\\b(protein|supplement|vitamin|snack|chocolate|tea|coffee beans|energy drink|nutrition|baby food|formula|sauce|noodles)\\b",
+   "status": "CONDITIONAL",
+   "regime": "Food import clearance",
+   "authority": "FSSAI",
+   "note": "Food products require FSSAI import licence/NOC and label compliance.",
+   "hs_hint": "19xx-21xx",
+   "source_urls": [
+    "https://www.fssai.gov.in"
+   ]
+  },
+  {
+   "id": "in-toys",
+   "pattern": "\\b(toy|lego|building blocks|plush|action figure|rc car|puzzle|board game|fidget|trading cards|stroller|baby monitor)\\b",
+   "status": "CONDITIONAL",
+   "regime": "Toys (Quality Control) Order / BIS IS 9873",
+   "authority": "BIS",
+   "note": "Toys for children need BIS certification (check scope for games/collectibles).",
+   "hs_hint": "9503",
+   "source_urls": [
+    "https://www.bis.gov.in"
+   ]
+  },
+  {
+   "id": "in-pet",
+   "pattern": "\\b(pet food|dog food|cat food|pet feeder|pet supplement)\\b",
+   "status": "CONDITIONAL",
+   "regime": "Animal-product / pet-food import conditions",
+   "authority": "Dept of Animal Husbandry & Dairying",
+   "note": "Pet food needs veterinary health certificates/permits.",
+   "hs_hint": "2309",
+   "source_urls": [
+    "https://www.dgft.gov.in"
+   ]
+  },
+  {
+   "id": "in-helmet",
+   "pattern": "\\b(helmet)\\b",
+   "status": "CONDITIONAL",
+   "regime": "Helmets QCO",
+   "authority": "BIS",
+   "note": "Helmets need BIS certification.",
+   "hs_hint": "6506",
+   "source_urls": [
+    "https://www.bis.gov.in"
+   ]
+  },
+  {
+   "id": "in-ev",
+   "pattern": "\\b(e-?bike|e-?scooter|electric scooter|electric bike|hoverboard)\\b",
+   "status": "CONDITIONAL",
+   "regime": "Motor Vehicles Act / CMVR type approval",
+   "authority": "MoRTH / ARAI",
+   "note": "Electric two-wheelers need type approval.",
+   "hs_hint": "8711",
+   "source_urls": [
+    "https://www.cbic.gov.in"
+   ]
+  },
+  {
+   "id": "in-footwear",
+   "pattern": "\\b(sneakers|running shoes|sandals|shoes|boots)\\b",
+   "status": "CONDITIONAL",
+   "regime": "Footwear QCO",
+   "authority": "BIS",
+   "note": "Many footwear categories fall under BIS quality control orders.",
+   "hs_hint": "64xx",
+   "source_urls": [
+    "https://www.bis.gov.in"
+   ]
+  },
+  {
+   "id": "in-lowrisk",
+   "pattern": "\\b(yoga mat|skipping rope|resistance band|dumbbell|kettlebell|foam roller|phone case|phone stand|phone holder|screen protector|backpack|tote bag|wallet|belt|scarf|sunglasses|cap|hoodie|jacket|packing cubes|neck pillow|passport holder|luggage scale|luggage|water bottle|lunch box|knife set|cast iron skillet|planter|garden hose|pruning shears|sprinkler|sleeping bag|camping tent|trekking pole|cooler box|portable hammock|desk organizer|notebook|fountain pen|whiteboard|tool kit|socket set|torque wrench|scented candle|wall art|throw blanket|photo frame|gift box|gift hamper|seat cover|car organizer|cricket bat|badminton racket|football|tennis racket|pickleball paddle|dog harness|dog toy|cat tree|pet grooming brush|cat litter box|pet fountain|sleep mask|jewelry|handbag|ukulele|guitar|telescope)\\b",
+   "status": "GENERALLY PERMITTED",
+   "regime": "General customs clearance (IGST + applicable duty)",
+   "authority": "CBIC / Indian Customs",
+   "note": "Low-regulatory-risk consumer goods, subject to standard customs, labelling (Legal Metrology) and tariff classification. HS code must still be confirmed.",
+   "hs_hint": "varies",
+   "source_urls": [
+    "https://www.cbic.gov.in",
+    "https://www.indiantradeportal.in"
+   ]
+  }
+ ]
+}

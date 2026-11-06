@@ -1,0 +1,15 @@
+{% extends "opportunity/base.html" %}{% block title %}Source health{% endblock %}
+{% block body %}
+<div class="card"><h2>Source health check</h2>
+<p class="muted">Tests every source used for a country from <b>this</b> computer and network: local search demand (Google Autocomplete / News / Trends / Reddit), the web-search providers used for site: checks, each local marketplace and the Ubuy storefront. Takes about a minute.</p>
+<div class="grid g4"><div><label for="hc">Country</label><select id="hc">{% for c in countries %}<option value="{{ c.code }}" {% if c.code=='NG' %}selected{% endif %}>{{ c.name }} ({{ c.code }}) – {{ c.coverage }}</option>{% endfor %}</select></div>
+<div><label for="hq">Sample product</label><input type="text" id="hq" value="airpods pro"></div><div style="align-self:end"><button id="go">Run check</button></div></div>
+<div id="out" style="margin-top:16px"></div></div>
+<script>
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+document.getElementById('go').onclick=async()=>{const o=document.getElementById('out');o.innerHTML='<p class="muted">Checking sources…</p>';
+ const r=await fetch('{{ url_for("opportunity.index") }}api/health/'+document.getElementById('hc').value+'?q='+encodeURIComponent(document.getElementById('hq').value));
+ if(!r.ok){o.textContent='Check failed ('+r.status+')';return}const d=await r.json();
+ o.innerHTML='<div class="note'+(d.verdict.startsWith('Good')?'':' warn')+'"><b>'+esc(d.verdict)+'</b> · '+d.ok+'/'+d.total+' sources OK for '+esc(d.country)+'</div><table><tr><th>Source</th><th>Used for</th><th>Status</th><th>Detail</th><th>Time</th></tr>'+
+ d.rows.map(x=>'<tr><td>'+esc(x.source)+'</td><td>'+esc(x.kind)+'</td><td><span class="pill '+(x.ok?'good':'bad')+'">'+(x.ok?'OK':'FAIL')+'</span></td><td>'+esc(x.detail)+'</td><td>'+x.seconds+'s</td></tr>').join('')+'</table>';};
+</script>{% endblock %}

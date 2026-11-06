@@ -1,0 +1,8 @@
+Flask>=3.0
+requests>=2.31
+beautifulsoup4>=4.12
+rapidfuzz>=3.5
+openpyxl>=3.1
+playwright>=1.44   # headless browser: exact Ubuy product-card check + JavaScript marketplaces (after install: python -m playwright install chromium)
+pytrends>=4.9.2   # Google Trends year-over-year growth figures
+# Optional (not required to run):

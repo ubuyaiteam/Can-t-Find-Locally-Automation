@@ -1,0 +1,53 @@
+{% extends "opportunity/base.html" %}{% block title %}New research{% endblock %}
+{% block body %}
+<div class="card"><h2>Find products people want but can't buy locally</h2>
+<form method="post" action="{{ url_for('opportunity.start') }}">
+<div class="grid g4">
+ <div><label for="cq">Country or region</label><input type="text" id="cq" placeholder="Type a country or region (e.g. Nigeria, Africa, GCC)…" autocomplete="off">
+  <select id="country" name="country" size="1" style="margin-top:6px">
+   <optgroup label="Regions (researches the top countries of the region)">{% for r in regions %}<option value="{{ r.code }}" data-n="{{ r.name|lower }} region" data-region="1">{{ r.name }} – region ({{ r.n }} countries)</option>{% endfor %}</optgroup>
+   <optgroup label="Countries">{% for c in countries %}<option value="{{ c.code }}" data-n="{{ c.name|lower }}" {% if c.code=='NG' %}selected{% endif %}>{{ c.name }} ({{ c.code }}) – {{ c.coverage }} coverage</option>{% endfor %}</optgroup>
+  </select></div>
+ <div><label for="period">Research period</label><select id="period" name="period">{% for p in periods %}<option value="{{ p }}" {% if p==30 %}selected{% endif %}>{{ p }} days</option>{% endfor %}</select>
+  <div class="muted" style="margin-top:4px">Looks back N days and forecasts the next N days.</div></div>
+ <div><label for="category">Category</label><select id="category" name="category"><option value="ALL" selected>ALL categories</option>{% for c in categories %}<option>{{ c }}</option>{% endfor %}</select></div>
+ <div><label for="mr">Maximum opportunities</label><input type="number" id="mr" name="max_results" value="100" min="1" max="100"></div>
+</div>
+<div class="grid g4" style="margin-top:12px">
+ <div><label for="target">Target opportunities</label><input type="number" id="target" name="target" value="20" min="1" max="100">
+  <div class="muted" style="margin-top:4px">Research continues in rounds until this many are found (or the depth/time limit).</div></div>
+ <div><label for="depth">Research depth</label><select id="depth" name="depth"><option value="quick">Quick – 1 round (~20 min)</option>
+  <option value="standard" selected>Standard – up to 4 rounds (~1 h)</option><option value="deep">Deep – up to 8 rounds (~2.5 h)</option></select></div>
+ <div><label for="skip_known">Variety</label><select id="skip_known" name="skip_known"><option value="1" selected>Skip products already confirmed as sold locally (new answers each run)</option>
+  <option value="0">Re-check everything</option></select></div>
+</div>
+<div id="regionBox" hidden style="margin-top:12px"><label>Countries to research in this region <span class="muted">(priority markets pre-selected; each country takes 10–30 min)</span></label><div id="regionList"></div></div>
+<div id="cov" class="note" style="margin-top:14px">Select a country to see its research coverage.</div>
+<button type="submit">Start research</button> <span class="muted">Runs automatically. No API keys needed. <a href="{{ url_for('opportunity.health_page') }}">Check sources first</a> if this is a new country or network.</span>
+</form></div>
+
+<div class="card"><h2>Previous research</h2>
+{% if not runs %}<p class="muted">No runs yet. Start your first run above.</p>{% else %}
+<table><tr><th>#</th><th>Country / region</th><th>Period</th><th>Category</th><th>Status</th><th>Candidates</th><th>Opportunities</th><th>Emerging</th><th>Started (UTC)</th><th></th></tr>
+{% for r in runs %}<tr><td>{{ r.id }}</td><td>{% if r.parent_id %}<span class="muted">↳ part of #{{ r.parent_id }}</span> {% endif %}{{ r.country_name }}</td><td>{{ r.period_days }} d</td><td>{{ r.category }}</td>
+<td><span class="pill {{ 'good' if r.status=='completed' else 'bad' if r.status=='failed' else 'warn' }}">{{ r.status }}</span></td>
+<td>{{ r.counters.get('candidates','–') }}</td><td>{{ r.counters.get('qualified','–') }}</td><td>{{ r.counters.get('emerging','–') }}</td><td>{{ r.created_at }}</td><td><a href="{{ url_for('opportunity.run_page', rid=r.id) }}">Open</a></td></tr>{% endfor %}</table>{% endif %}
+{% if track %}<p class="muted">Forecast track record so far: {% for k,v in track.items() %}{{ v }} {{ k }}{% if not loop.last %}, {% endif %}{% endfor %}.</p>{% endif %}</div>
+<script>
+const sel=document.getElementById('country'),q=document.getElementById('cq'),cov=document.getElementById('cov'),RMAX={{ region_max }};
+const all=[...sel.querySelectorAll('option')].map(o=>({v:o.value,t:o.text,n:o.dataset.n,r:!!o.dataset.region}));
+q.addEventListener('input',()=>{const t=q.value.trim().toLowerCase();const keep=all.filter(o=>!t||o.n.includes(t)||o.v.toLowerCase()===t);
+ sel.innerHTML='';keep.forEach(o=>{const e=document.createElement('option');e.value=o.v;e.textContent=o.t;e.dataset.n=o.n;if(o.r)e.dataset.region=1;sel.appendChild(e)});sel.size=Math.min(8,keep.length)||1;if(keep.length)sel.selectedIndex=0;load();});
+sel.addEventListener('change',load);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+async function load(){if(!sel.value)return;const r=await fetch('{{ url_for("opportunity.index") }}api/country/'+sel.value);if(!r.ok)return;const c=await r.json();
+ const box=document.getElementById('regionBox'),list=document.getElementById('regionList');
+ if(c.level==='Region'){box.hidden=false;
+  list.innerHTML=c.countries.map(x=>'<label class="chip" style="display:inline-block;font-weight:400"><input type="checkbox" name="region_countries" value="'+x.code+'"'+(c.priority.slice(0,RMAX).includes(x.code)?' checked':'')+'> '+esc(x.name)+' <span class="muted">'+esc(x.coverage)+'</span></label>').join('');
+  cov.className='note';cov.textContent='Region run: one full research run per selected country, then products are ranked by how many countries they are an opportunity in.';return}
+ box.hidden=true;list.innerHTML='';
+ const ok=Object.entries(c.layers).map(([k,v])=>(v?'✔ ':'✖ ')+k).join('   ');
+ cov.className='note'+(c.level==='Full'||c.level==='Good'?'':' warn');
+ cov.textContent='Coverage: '+c.level+'.   '+ok+'   · Language: '+c.language+' · News edition: '+c.news_edition+(c.marketplaces.length?' · Marketplaces: '+c.marketplaces.join(', '):'')+(c.note?'   — '+c.note:'');}
+load();
+</script>{% endblock %}
